@@ -121,6 +121,8 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
       const [stationLong, stationLat] = geometry.coordinates;
       const distance = calcDistance(stationLat, stationLong, homeLat, homeLong);
       const key = `return${station.bike_angels_points}`;
+      console.log(bestStations[key]);
+      console.log(bestStations, key);
       const { distance: comparisonDistance } = bestStations[key];
       if (distance < comparisonDistance) {
         bestStations[key] = {
