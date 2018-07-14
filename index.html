@@ -64,7 +64,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(({ body }) =>
 //:::                                                                         :::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-function distance(lat1, lon1, lat2, lon2, unit) {
+function calcDistance(lat1, lon1, lat2, lon2, unit) {
     var radlat1 = Math.PI * lat1/180
         var radlat2 = Math.PI * lat2/180
           var theta = lon1-lon2
@@ -80,7 +80,7 @@ function distance(lat1, lon1, lat2, lon2, unit) {
           if (unit=="N") { dist = dist * 0.8684 }
             return dist
 }
-window.calcDistance = distance;
+window.calcDistance = calcDistance;
 
 
 
@@ -119,7 +119,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   resJson.features.forEach(({ geometry, properties: station }) => {
     if (station.bike_angels_action === 'give') {
       const [stationLong, stationLat] = geometry.coordinates;
-      const distance = distance(stationLat, stationLong, homeLat, homeLong);
+      const distance = calcDistance(stationLat, stationLong, homeLat, homeLong);
       const key = `return${station.bike_angels_points}`;
       const { distance: comparisonDistance } = bestStations[key];
       if (distance < comparisonDistance) {
@@ -132,7 +132,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
     if (station.bike_angels_action === 'take') {
       const [stationLong, stationLat] = geometry.coordinates;
-      const distance = distance(stationLat, stationLong, workLat, workLong);
+      const distance = calcDistance(stationLat, stationLong, workLat, workLong);
       const key = `return${station.bike_angels_points}`;
       const { distance: comparisonDistance } = bestStations[key];
       if (distance < comparisonDistance) {
