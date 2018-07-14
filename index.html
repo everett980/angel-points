@@ -80,6 +80,7 @@ function distance(lat1, lon1, lat2, lon2, unit) {
           if (unit=="N") { dist = dist * 0.8684 }
             return dist
 }
+window.calcDistance = distance;
 
 
 
@@ -90,6 +91,13 @@ function distance(lat1, lon1, lat2, lon2, unit) {
 
 
 
+const workLat = 40.740641;
+const workLong = -73.9985457;
+const homeLat = 40.708504;
+const homeLong = -74.0186077;
+
+
+console.log('distance is: ', distance(workLat, workLong, homeLat, homeLong));
 fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   window.res = res;
   console.log(res);
