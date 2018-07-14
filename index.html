@@ -8,9 +8,22 @@
 <script>
 fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(({ body }) => {
   const stationReader = body.getReader();
-  stationReader.read().then(({ value, done }) => {
+  let binArray = [];
+  const processReadResult = ({ value, done }) => {
     console.log(value);
     console.log(done);
-  });
+
+    binArray = binArray.concat(value);
+    if (done) handleDone();
+    else doRead();
+  };
+  const doRead = () => stationReader.read().then(processReadResult);
+  doRead();
+
+  function handleDone() {
+    window.binArray = binArray;
+    console.log('is done\n\n\n');
+    console.log(window.binArray);
+  }
 });
 </script>
