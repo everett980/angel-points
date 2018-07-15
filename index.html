@@ -59,6 +59,7 @@ const workLat = 40.740641;
 const workLong = -73.9985457;
 const homeLat = 40.708504;
 const homeLong = -74.0186077;
+// https://www.google.com/maps/dir/?api=1&origin=40.740641,-73.9985457&destination=40.708504,-74.0186077&travelmode=bicycling
 
 const bestStations = {
 };
@@ -98,11 +99,11 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
             bestStations[key] = {
               distance,
               name: station.name,
+              stationLat,
+              stationLong,
             }
           }
-        }
-
-        if (station.bike_angels_action === 'take') {
+        } else if (station.bike_angels_action === 'take') {
           const [stationLong, stationLat] = geometry.coordinates;
           const distance = calcDistance(stationLat, stationLong, startLat, startLong);
           const key = `take${station.bike_angels_points}`;
@@ -111,6 +112,33 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
             bestStations[key] = {
               distance,
               name: station.name,
+              stationLat,
+              stationLong,
+            }
+          }
+        } else {
+          const [stationLong, stationLat] = geometry.coordinates;
+          const distanceToStart = calcDistance(stationLat, stationLong, startLat, startLong);
+          const distanceToStop = calcDistance(stationLat, stationLong, stopLat, stopLong);
+          const startKey = `take0`;
+          const { distance: startComparisonDistance } = bestStations[startKey] || {};
+          if (!(startComparisonDistance < distance)) {
+            bestStations[startKey] = {
+              distance,
+              name: station.name,
+              stationLat,
+              stationLong,
+            }
+          }
+
+          const stopKey = `return0`;
+          const { distance: stopComparisonDistance } = bestStations[stopKey] || {};
+          if (!(stopComparisonDistance < distance)) {
+            bestStations[stopKey] = {
+              distance,
+              name: station.name,
+              stationLat,
+              stationLong,
             }
           }
         }
