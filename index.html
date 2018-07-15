@@ -76,10 +76,8 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   urlTextArea.placeholder = 'Provide google maps url';
   urlTextArea.onpaste = ({ target: { value } }) => {
     console.log(value);
-    const longitudeRegex = /1d-[^!]*!/g;
-    const latitudeRegex = /!2d-[^!]*!/g;
-    const [startLongitude, stopLongitude] = value.match(longitudeRegex);
-    const [startLatitude, stopLatitude] = value.match(latitudeRegex);
+    const [startLongitude, stopLongitude] = value.match(/1d-[^!]*!/g);
+    const [startLatitude, stopLatitude] = value.match(/!2d-[^!]*!/g);
     console.log(startLongitude, stopLongitude);
     console.log(startLatitude, stopLatitude);
 
