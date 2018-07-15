@@ -74,18 +74,24 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
   const urlTextArea = document.createElement('textarea');
   urlTextArea.placeholder = 'Provide google maps url';
-  urlTextArea.onkeypress = ({ keyCode, target: { value } }) => {
-    if (keyCode === 13) {
+  urlTextArea.onpaste = ({ target: { value } }) => {
+    // if (keyCode === 13) {
       console.log(value);
       const [startLongitude, stopLongitude] = value.match(/1d-[^!]*!/g);
-      const [startLatitude, stopLatitude] = value.match(/!2d-[^!]*!/g);
+      const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
       console.log(startLongitude, stopLongitude);
       console.log(startLatitude, stopLatitude);
+      const startLong = startLongitude.substring(3, startLongitude.length-1);
+      const stopLong = stopLongitude.substring(3, stopLongitude.length-1);
+      const startLat = startLatitude.substring(3, startLatitude.length-1);
+      const stopLat = stopLatitude.substring(3, stopLatitude.length-1);
+      console.log(startLong, stopLong);
+      console.log(startLat, stopLat);
 
       resJson.features.forEach(({ geometry, properties: station }) => {
         if (station.bike_angels_action === 'give') {
           const [stationLong, stationLat] = geometry.coordinates;
-          const distance = calcDistance(stationLat, stationLong, stopLatitude, stopLongitude);
+          const distance = calcDistance(stationLat, stationLong, stopLat, stopLong);
           const key = `return${station.bike_angels_points}`;
           const { distance: comparisonDistance } = bestStations[key] || {};
           if (!(comparisonDistance < distance)) {
@@ -98,7 +104,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
         if (station.bike_angels_action === 'take') {
           const [stationLong, stationLat] = geometry.coordinates;
-          const distance = calcDistance(stationLat, stationLong, startLatitude, startLongitude);
+          const distance = calcDistance(stationLat, stationLong, startLat, startLong);
           const key = `take${station.bike_angels_points}`;
           const { distance: comparisonDistance } = bestStations[key] || {};
           if (!(comparisonDistance < distance)) {
@@ -111,8 +117,11 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
       });
 
       console.log(bestStations);
+      const resultsUgly = document.createElement('p');
+      resultsUgly.innerHTML = JSON.stringify(bestStations, null, 2);
+      document.appendChild(resultsUgly);
 
-    }
+    // }
   }
 
   document.body.appendChild(urlTextArea);
