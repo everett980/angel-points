@@ -1,41 +1,5 @@
-<h1>Avalon Narration</h1>
-<div id='setup'>
-  <textarea id='playerCSV' placeholder='Add player names as csv without trailing comma' style='width: 100%'></textarea>
-  <br>
-  <button id='start'>Begin Game</button>
-</div>
-
+<h1>Angel Points</h1>
 <script>
-/*
-fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(({ body }) => {
-  const stationReader = body.getReader();
-  let binArray = [];
-  const processReadResult = ({ value, done }) => {
-    console.log(value);
-    console.log(done);
-
-    binArray = binArray.concat(value);
-    if (done) handleDone();
-    else doRead();
-  };
-  const doRead = () => stationReader.read().then(processReadResult);
-  doRead();
-
-  function handleDone() {
-    window.binArray = binArray;
-    console.log('is done\n\n\n');
-    console.log(window.binArray);
-  }
-});
-*/
-
-
-
-
-
-
-
-
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:::                                                                         :::
 //:::  This routine calculates the distance between two points (given the     :::
@@ -108,36 +72,50 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   window.resJson = resJson;
   console.log(resJson);
 
-  resJson.features.forEach(({ geometry, properties: station }) => {
-    if (station.bike_angels_action === 'give') {
-      const [stationLong, stationLat] = geometry.coordinates;
-      const distance = calcDistance(stationLat, stationLong, homeLat, homeLong);
-      const key = `return${station.bike_angels_points}`;
-      const { distance: comparisonDistance } = bestStations[key] || {};
-      if (!(comparisonDistance < distance)) {
-        bestStations[key] = {
-          distance,
-          name: station.name,
+  const urlTextArea = document.createElement('textarea');
+  urlTextArea.placeholder = 'Provide google maps url';
+  urlTextArea.onpaste = ({ target: { value } }) => {
+    console.log(value);
+    const longitudeRegex = /1d-[^!]*!/g;
+    const latitudeRegex = /!2d-[^!]*!/g;
+    const [startLongitude, stopLongitude] = value.match(longitudeRegex);
+    const [startLatitude, stopLatitude] = value.match(latitudeRegex);
+    console.log(startLongitude, stopLongitude);
+    console.log(startLatitude, stopLatitude);
+
+    resJson.features.forEach(({ geometry, properties: station }) => {
+      if (station.bike_angels_action === 'give') {
+        const [stationLong, stationLat] = geometry.coordinates;
+        const distance = calcDistance(stationLat, stationLong, stopLatitude, stopLongitude);
+        const key = `return${station.bike_angels_points}`;
+        const { distance: comparisonDistance } = bestStations[key] || {};
+        if (!(comparisonDistance < distance)) {
+          bestStations[key] = {
+            distance,
+            name: station.name,
+          }
         }
       }
-    }
 
-    if (station.bike_angels_action === 'take') {
-      const [stationLong, stationLat] = geometry.coordinates;
-      const distance = calcDistance(stationLat, stationLong, workLat, workLong);
-      const key = `take${station.bike_angels_points}`;
-      const { distance: comparisonDistance } = bestStations[key] || {};
-      if (!(comparisonDistance < distance)) {
-        bestStations[key] = {
-          distance,
-          name: station.name,
+      if (station.bike_angels_action === 'take') {
+        const [stationLong, stationLat] = geometry.coordinates;
+        const distance = calcDistance(stationLat, stationLong, startLatitude, startLongitude);
+        const key = `take${station.bike_angels_points}`;
+        const { distance: comparisonDistance } = bestStations[key] || {};
+        if (!(comparisonDistance < distance)) {
+          bestStations[key] = {
+            distance,
+            name: station.name,
+          }
         }
       }
-    }
-  });
+    });
 
-  console.log(bestStations);
+    console.log(bestStations);
 
+  }
+
+  document.body.appendChild(urlTextArea);
 });
 
 </script>
