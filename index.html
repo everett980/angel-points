@@ -74,8 +74,8 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
   const urlTextArea = document.createElement('textarea');
   urlTextArea.placeholder = 'Provide google maps url';
-  urlTextArea.onpaste = ({ target: { value } }) => {
-    // if (keyCode === 13) {
+  urlTextArea.onkeypress = ({ keyCode, target: { value } }) => {
+    if (keyCode === 13) {
       console.log(value);
       const [startLongitude, stopLongitude] = value.match(/1d-[^!]*!/g);
       const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
@@ -119,9 +119,9 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
       console.log(bestStations);
       const resultsUgly = document.createElement('p');
       resultsUgly.innerHTML = JSON.stringify(bestStations, null, 2);
-      document.appendChild(resultsUgly);
+      document.body.appendChild(resultsUgly);
 
-    // }
+    }
   }
 
   document.body.appendChild(urlTextArea);
