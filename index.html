@@ -122,7 +122,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
           const distanceToStop = calcDistance(stationLat, stationLong, stopLat, stopLong);
           const startKey = `take0`;
           const { distance: startComparisonDistance } = bestStations[startKey] || {};
-          if (!(startComparisonDistance < distance)) {
+          if (!(startComparisonDistance < distanceToStart)) {
             bestStations[startKey] = {
               distance,
               name: station.name,
@@ -133,7 +133,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
           const stopKey = `return0`;
           const { distance: stopComparisonDistance } = bestStations[stopKey] || {};
-          if (!(stopComparisonDistance < distance)) {
+          if (!(stopComparisonDistance < distanceToStop)) {
             bestStations[stopKey] = {
               distance,
               name: station.name,
