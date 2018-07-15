@@ -57,9 +57,10 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   console.log(resJson);
 
   const urlTextArea = document.createElement('textarea');
-  urlTextArea.placeholder = 'Provide google maps url';
+  urlTextArea.placeholder = 'Provide google maps url which includes latitudes and longitudes';
   urlTextArea.onkeypress = ({ keyCode, target: { value } }) => {
     if (keyCode === 13) {
+      urlTextArea.parentNode.removeChild(urlTextArea);
       console.log(value);
       const [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
       const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
