@@ -58,154 +58,156 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
   const urlTextArea = document.createElement('textarea');
   urlTextArea.placeholder = 'Provide google maps url which includes latitudes and longitudes';
-  urlTextArea.onkeypress = ({ keyCode, target: { value } }) => {
-    if (keyCode === 13) {
-      urlTextArea.parentNode.removeChild(urlTextArea);
-      console.log(value);
-      const [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
-      const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
-      console.log(startLongitude, stopLongitude);
-      console.log(startLatitude, stopLatitude);
-      const startLong = startLongitude.substring(2, startLongitude.length-1);
-      const stopLong = stopLongitude.substring(2, stopLongitude.length-1);
-      const startLat = startLatitude.substring(3, startLatitude.length-1);
-      const stopLat = stopLatitude.substring(3, stopLatitude.length-1);
-      console.log(startLong, stopLong);
-      console.log(startLat, stopLat);
-      const bestStations = {
-      };
+  document.body.appendChild(urlTextArea);
 
-      resJson.features.forEach(({ geometry, properties: station }) => {
-        if (station.bike_angels_action === 'give') {
-          const [stationLong, stationLat] = geometry.coordinates;
-          const distance = calcDistance(stationLat, stationLong, stopLat, stopLong);
-          const key = `return${station.bike_angels_points}`;
-          const { distance: comparisonDistance } = bestStations[key] || {};
-          if (!(comparisonDistance < distance)) {
-            bestStations[key] = {
-              distance,
-              name: station.name,
-              stationLat,
-              stationLong,
-            }
-          }
-        } else if (station.bike_angels_action === 'take') {
-          const [stationLong, stationLat] = geometry.coordinates;
-          const distance = calcDistance(stationLat, stationLong, startLat, startLong);
-          const key = `take${station.bike_angels_points}`;
-          const { distance: comparisonDistance } = bestStations[key] || {};
-          if (!(comparisonDistance < distance)) {
-            bestStations[key] = {
-              distance,
-              name: station.name,
-              stationLat,
-              stationLong,
-            }
-          }
-        } else {
-          const [stationLong, stationLat] = geometry.coordinates;
-          const distanceToStart = calcDistance(stationLat, stationLong, startLat, startLong);
-          const distanceToStop = calcDistance(stationLat, stationLong, stopLat, stopLong);
-          const startKey = `take0`;
-          const { distance: startComparisonDistance } = bestStations[startKey] || {};
-          if (!(startComparisonDistance < distanceToStart)) {
-            bestStations[startKey] = {
-              distance: distanceToStart,
-              name: station.name,
-              stationLat,
-              stationLong,
-            }
-          }
+  const submitButton = document.createelement('button');
+  submitButton.onclick = () => {
+    const { value } = urlTextArea;
+    urlTextArea.parentNode.removeChild(urlTextArea);
+    console.log(value);
+    const [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
+    const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
+    console.log(startLongitude, stopLongitude);
+    console.log(startLatitude, stopLatitude);
+    const startLong = startLongitude.substring(2, startLongitude.length-1);
+    const stopLong = stopLongitude.substring(2, stopLongitude.length-1);
+    const startLat = startLatitude.substring(3, startLatitude.length-1);
+    const stopLat = stopLatitude.substring(3, stopLatitude.length-1);
+    console.log(startLong, stopLong);
+    console.log(startLat, stopLat);
+    const bestStations = {
+    };
 
-          const stopKey = `return0`;
-          const { distance: stopComparisonDistance } = bestStations[stopKey] || {};
-          if (!(stopComparisonDistance < distanceToStop)) {
-            bestStations[stopKey] = {
-              distance: distanceToStop,
-              name: station.name,
-              stationLat,
-              stationLong,
-            }
+    resJson.features.forEach(({ geometry, properties: station }) => {
+      if (station.bike_angels_action === 'give') {
+        const [stationLong, stationLat] = geometry.coordinates;
+        const distance = calcDistance(stationLat, stationLong, stopLat, stopLong);
+        const key = `return${station.bike_angels_points}`;
+        const { distance: comparisonDistance } = bestStations[key] || {};
+        if (!(comparisonDistance < distance)) {
+          bestStations[key] = {
+            distance,
+            name: station.name,
+            stationLat,
+            stationLong,
           }
         }
-      });
-
-      const startStationKeys = [];
-      const stopStationKeys = [];
-      Object.keys(bestStations).forEach(stationKey => {
-        if (stationKey.startsWith('take')) {
-          startStationKeys.push(stationKey);
-        } else if (stationKey.startsWith('return')) {
-          stopStationKeys.push(stationKey);
-        } else {
-          console.log("found bad station key", stationKey);
+      } else if (station.bike_angels_action === 'take') {
+        const [stationLong, stationLat] = geometry.coordinates;
+        const distance = calcDistance(stationLat, stationLong, startLat, startLong);
+        const key = `take${station.bike_angels_points}`;
+        const { distance: comparisonDistance } = bestStations[key] || {};
+        if (!(comparisonDistance < distance)) {
+          bestStations[key] = {
+            distance,
+            name: station.name,
+            stationLat,
+            stationLong,
+          }
         }
-      });
-
-      startStationKeys.sort().reverse();
-      stopStationKeys.sort().reverse();
-
-      let startSelection = "";
-      let stopSelection = "";
-
-      function addLink() {
-        if (!startSelection || !stopSelection) return;
-        const linkId = 'link-id';
-        const existingLink = document.getElementById(linkId);
-        if (existingLink) {
-          console.log('foundya');
-          existingLink.parentNode.removeChild(existingLink);
+      } else {
+        const [stationLong, stationLat] = geometry.coordinates;
+        const distanceToStart = calcDistance(stationLat, stationLong, startLat, startLong);
+        const distanceToStop = calcDistance(stationLat, stationLong, stopLat, stopLong);
+        const startKey = `take0`;
+        const { distance: startComparisonDistance } = bestStations[startKey] || {};
+        if (!(startComparisonDistance < distanceToStart)) {
+          bestStations[startKey] = {
+            distance: distanceToStart,
+            name: station.name,
+            stationLat,
+            stationLong,
+          }
         }
 
-        const newLink = document.createElement('a');
-        newLink.href = `https://www.google.com/maps/dir/?api=1&origin=${bestStations[startSelection].stationLat},${bestStations[startSelection].stationLong}&destination=${bestStations[stopSelection].stationLat},${bestStations[stopSelection].stationLong}&travelmode=bicycling`;
-        newLink.id = linkId;
-        newLink.innerHTML = 'Biking directions for this selection';
-        newLink.target = '_blank';
-        document.body.appendChild(newLink);
+        const stopKey = `return0`;
+        const { distance: stopComparisonDistance } = bestStations[stopKey] || {};
+        if (!(stopComparisonDistance < distanceToStop)) {
+          bestStations[stopKey] = {
+            distance: distanceToStop,
+            name: station.name,
+            stationLat,
+            stationLong,
+          }
+        }
+      }
+    });
+
+    const startStationKeys = [];
+    const stopStationKeys = [];
+    Object.keys(bestStations).forEach(stationKey => {
+      if (stationKey.startsWith('take')) {
+        startStationKeys.push(stationKey);
+      } else if (stationKey.startsWith('return')) {
+        stopStationKeys.push(stationKey);
+      } else {
+        console.log("found bad station key", stationKey);
+      }
+    });
+
+    startStationKeys.sort().reverse();
+    stopStationKeys.sort().reverse();
+
+    let startSelection = "";
+    let stopSelection = "";
+
+    function addLink() {
+      if (!startSelection || !stopSelection) return;
+      const linkId = 'link-id';
+      const existingLink = document.getElementById(linkId);
+      if (existingLink) {
+        console.log('foundya');
+        existingLink.parentNode.removeChild(existingLink);
       }
 
-      const startHeader = document.createElement('h4');
-      startHeader.innerHTML = 'Pick up station options:'
-      document.body.appendChild(startHeader);
-      const startUl = document.createElement('ul');
-      startStationKeys.forEach(stationKey => {
-        const stationLi = document.createElement('li');
-        const station = bestStations[stationKey];
-        stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
-        stationLi.id = stationKey;
-        stationLi.onclick = () => {
-          if (startSelection) document.getElementById(startSelection).style['text-decoration'] = 'none';
-          startSelection = stationKey;
-          document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
-          addLink();
-        };
-        startUl.appendChild(stationLi);
-      });
-      document.body.appendChild(startUl);
-
-      const stopHeader = document.createElement('h4');
-      stopHeader.innerHTML = 'Drop off station options:'
-      document.body.appendChild(stopHeader);
-      const stopUl = document.createElement('ul');
-      stopStationKeys.forEach(stationKey => {
-        const stationLi = document.createElement('li');
-        const station = bestStations[stationKey];
-        stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
-        stationLi.id = stationKey;
-        stationLi.onclick = () => {
-          if (stopSelection) document.getElementById(stopSelection).style['text-decoration'] = 'none';
-          stopSelection = stationKey;
-          document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
-          addLink();
-        };
-        stopUl.appendChild(stationLi);
-      });
-      document.body.appendChild(stopUl);
-
+      const newLink = document.createElement('a');
+      newLink.href = `https://www.google.com/maps/dir/?api=1&origin=${bestStations[startSelection].stationLat},${bestStations[startSelection].stationLong}&destination=${bestStations[stopSelection].stationLat},${bestStations[stopSelection].stationLong}&travelmode=bicycling`;
+      newLink.id = linkId;
+      newLink.innerHTML = 'Biking directions for this selection';
+      newLink.target = '_blank';
+      document.body.appendChild(newLink);
     }
-  }
 
-  document.body.appendChild(urlTextArea);
+    const startHeader = document.createElement('h4');
+    startHeader.innerHTML = 'Pick up station options:'
+    document.body.appendChild(startHeader);
+    const startUl = document.createElement('ul');
+    startStationKeys.forEach(stationKey => {
+      const stationLi = document.createElement('li');
+      const station = bestStations[stationKey];
+      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+      stationLi.id = stationKey;
+      stationLi.onclick = () => {
+        if (startSelection) document.getElementById(startSelection).style['text-decoration'] = 'none';
+        startSelection = stationKey;
+        document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
+        addLink();
+      };
+      startUl.appendChild(stationLi);
+    });
+    document.body.appendChild(startUl);
+
+    const stopHeader = document.createElement('h4');
+    stopHeader.innerHTML = 'Drop off station options:'
+    document.body.appendChild(stopHeader);
+    const stopUl = document.createElement('ul');
+    stopStationKeys.forEach(stationKey => {
+      const stationLi = document.createElement('li');
+      const station = bestStations[stationKey];
+      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+      stationLi.id = stationKey;
+      stationLi.onclick = () => {
+        if (stopSelection) document.getElementById(stopSelection).style['text-decoration'] = 'none';
+        stopSelection = stationKey;
+        document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
+        addLink();
+      };
+      stopUl.appendChild(stationLi);
+    });
+    document.body.appendChild(stopUl);
+
+  }
+  submitButton.innerHTML = 'Generate station options for url';
+  document.body.appendChild(submitButton);
 });
 </script>
