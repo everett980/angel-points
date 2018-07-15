@@ -57,16 +57,22 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   console.log(resJson);
 
   const urlTextArea = document.createElement('textarea');
-  urlTextArea.placeholder = 'Provide google maps url which includes latitudes and longitudes';
+  urlTextArea.placeholder = 'Provide desktop google maps url which includes latitudes and longitudes';
   document.body.appendChild(urlTextArea);
 
   const submitButton = document.createElement('button');
   submitButton.onclick = () => {
     const { value } = urlTextArea;
     urlTextArea.parentNode.removeChild(urlTextArea);
+    submitButton.parentNode.removeChild(submitButton);
     console.log(value);
-    const [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
-    const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
+    let startLongitude, stopLongitude, startLatitude, stopLatitude;
+    try {
+      [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
+      [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
+    } catch (_) {
+      window.alert('Unable to parse coordinates from provided url, please refresh and try again');
+    }
     console.log(startLongitude, stopLongitude);
     console.log(startLatitude, stopLatitude);
     const startLong = startLongitude.substring(2, startLongitude.length-1);
@@ -208,6 +214,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
 
   }
   submitButton.innerHTML = 'Generate station options for url';
+  document.body.appendChild(document.createElement('br'));
   document.body.appendChild(submitButton);
 });
 </script>
