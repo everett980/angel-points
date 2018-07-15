@@ -77,12 +77,12 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   urlTextArea.onkeypress = ({ keyCode, target: { value } }) => {
     if (keyCode === 13) {
       console.log(value);
-      const [startLongitude, stopLongitude] = value.match(/1d-[^!]*!/g);
+      const [startLongitude, stopLongitude] = value.match(/1d[^!]*!/g);
       const [startLatitude, stopLatitude] = value.match(/!2d[^!]*!/g);
       console.log(startLongitude, stopLongitude);
       console.log(startLatitude, stopLatitude);
-      const startLong = startLongitude.substring(3, startLongitude.length-1);
-      const stopLong = stopLongitude.substring(3, stopLongitude.length-1);
+      const startLong = startLongitude.substring(2, startLongitude.length-1);
+      const stopLong = stopLongitude.substring(2, stopLongitude.length-1);
       const startLat = startLatitude.substring(3, startLatitude.length-1);
       const stopLat = stopLatitude.substring(3, stopLatitude.length-1);
       console.log(startLong, stopLong);
