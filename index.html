@@ -48,23 +48,6 @@ window.calcDistance = calcDistance;
 
 
 
-
-
-
-
-
-
-
-const workLat = 40.740641;
-const workLong = -73.9985457;
-const homeLat = 40.708504;
-const homeLong = -74.0186077;
-// https://www.google.com/maps/dir/?api=1&origin=40.740641,-73.9985457&destination=40.708504,-74.0186077&travelmode=bicycling
-
-const bestStations = {
-};
-
-console.log('distance is: ', calcDistance(workLat, workLong, homeLat, homeLong));
 fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
   window.res = res;
   console.log(res);
@@ -88,6 +71,8 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
       const stopLat = stopLatitude.substring(3, stopLatitude.length-1);
       console.log(startLong, stopLong);
       console.log(startLat, stopLat);
+      const bestStations = {
+      };
 
       resJson.features.forEach(({ geometry, properties: station }) => {
         if (station.bike_angels_action === 'give') {
@@ -144,15 +129,82 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
         }
       });
 
-      console.log(bestStations);
-      const resultsUgly = document.createElement('p');
-      resultsUgly.innerHTML = JSON.stringify(bestStations, null, 2);
-      document.body.appendChild(resultsUgly);
+      const startStationKeys = [];
+      const stopStationKeys = [];
+      Object.keys(bestStations).forEach(stationKey => {
+        if (stationKey.startsWith('take')) {
+          startStationKeys.push(stationKey);
+        } else if (stationKey.startsWith('return')) {
+          stopStationKeys.push(stationKey);
+        } else {
+          console.log("found bad station key", stationKey);
+        }
+      });
+
+      startStationKeys.sort().reverse();
+      stopStationKeys.sort().reverse();
+
+      let startSelection = "";
+      let stopSelection = "";
+
+      function addLink() {
+        if (!startSelection || !stopSelection) return;
+        const linkId = 'link-id';
+        const existingLink = document.getElementById(linkId);
+        if (existingLink) {
+          console.log('foundya');
+          existingLink.parentNode.removeChild(existingLink);
+        }
+
+        const newLink = document.createElement('a');
+        newLink.href = `https://www.google.com/maps/dir/?api=1&origin=${bestStations[startSelection].stationLat},${bestStations[startSelection].stationLong}&destination=${bestStations[stopSelection].stationLat},${bestStations[stopSelection].stationLong}&travelmode=bicycling`;
+        newLink.id = linkId;
+        newLink.innerHTML = 'Biking directions for this selection';
+        newLink.target = '_blank';
+        document.body.appendChild(newLink);
+      }
+
+      const startHeader = document.createElement('h4');
+      startHeader.innerHTML = 'Pick up station options:'
+      document.body.appendChild(startHeader);
+      const startUl = document.createElement('ul');
+      startStationKeys.forEach(stationKey => {
+        const stationLi = document.createElement('li');
+        const station = bestStations[stationKey];
+        stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+        stationLi.id = stationKey;
+        stationLi.onclick = () => {
+          if (startSelection) document.getElementById(startSelection).style['text-decoration'] = 'none';
+          startSelection = stationKey;
+          document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
+          addLink();
+        };
+        startUl.appendChild(stationLi);
+      });
+      document.body.appendChild(startUl);
+
+      const stopHeader = document.createElement('h4');
+      stopHeader.innerHTML = 'Drop off station options:'
+      document.body.appendChild(stopHeader);
+      const stopUl = document.createElement('ul');
+      stopStationKeys.forEach(stationKey => {
+        const stationLi = document.createElement('li');
+        const station = bestStations[stationKey];
+        stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+        stationLi.id = stationKey;
+        stationLi.onclick = () => {
+          if (stopSelection) document.getElementById(stopSelection).style['text-decoration'] = 'none';
+          stopSelection = stationKey;
+          document.getElementById(stationKey).style['text-decoration'] = 'underline overline';
+          addLink();
+        };
+        stopUl.appendChild(stationLi);
+      });
+      document.body.appendChild(stopUl);
 
     }
   }
 
   document.body.appendChild(urlTextArea);
 });
-
 </script>
