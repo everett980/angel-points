@@ -181,7 +181,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
     startStationKeys.forEach(stationKey => {
       const stationLi = document.createElement('li');
       const station = bestStations[stationKey];
-      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away from start`;
       stationLi.id = stationKey;
       stationLi.onclick = () => {
         if (startSelection) document.getElementById(startSelection).style['text-decoration'] = 'none';
@@ -200,7 +200,7 @@ fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(res => {
     stopStationKeys.forEach(stationKey => {
       const stationLi = document.createElement('li');
       const station = bestStations[stationKey];
-      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away`;
+      stationLi.innerHTML = `${station.name} is worth ${stationKey[stationKey.length-1]} points and is ${Math.floor(station.distance * 100) / 100} miles away from destination`;
       stationLi.id = stationKey;
       stationLi.onclick = () => {
         if (stopSelection) document.getElementById(stopSelection).style['text-decoration'] = 'none';
